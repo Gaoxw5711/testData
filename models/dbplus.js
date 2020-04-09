@@ -1,10 +1,18 @@
 /**
  *sqserver Model
  **/
-import mysql from "mysql";
-import dbConfig from "./DBConfig";
+var mysql = require('mysql');
+// import dbConfig from './DBConfig';
 
-const pool = mysql.createPool(dbConfig);
+// const pool = mysql.createPool(dbConfig);
+
+const pool = mysql.createPool({
+  host: '49.235.242.185', // 地址
+  user: 'kerwin',
+  port: '3306',
+  password: 'kerwin@123',
+  database: 'testDatabase' // 数据库名字
+}); //数据库连接配置
 
 // var getConnection = function (callback) {
 //   //连接数据库
@@ -133,46 +141,50 @@ const pool = mysql.createPool(dbConfig);
 //   });
 // };
 
-// var selectAll = function (tableName, callBack) {
-//   //查询该表所有数据
-//   getConnection(function (connection) {
-//     var ps = new mssql.PreparedStatement(connection);
-//     var sql = "select * from " + tableName + " ";
-//     ps.prepare(sql, function (err) {
-//       if (err) console.log(err);
-//       ps.execute("", function (err, recordset) {
-//         callBack(err, recordset);
-//         ps.unprepare(function (err) {
-//           if (err) console.log(err);
-//         });
-//       });
-//     });
-//   });
-// };
+var selectAll = function(tableName, callBack) {
+  //查询该表所有数据
+  pool.getConnection(function(err, connection) {
+    if (err) throw err; // not connected!
 
-export const add = (addObj, tableName, callBack) => {
+    var sql = 'SELECT * FROM ' + tableName + ' ';
+    connection.query(sql, function(error, result) {
+      if (error) throw error;
+
+      console.log(result); //数据库查询结果返回到result中
+
+      connection.release();
+    });
+  });
+};
+
+const add = (addObj, tableName, callBack) => {
   //添加数据
-  pool.getConnection(function (connection) {
-    var sql = "insert into " + tableName + "(";
-    if (addObj != "") {
+  pool.getConnection(function(err, connection) {
+    var sql = 'insert into ' + tableName + '(';
+    if (addObj != '') {
       for (var index in addObj) {
-        if (typeof addObj[index] == "number") {
+        if (typeof addObj[index] == 'number') {
           ps.input(index, mssql.Int);
-        } else if (typeof addObj[index] == "string") {
+        } else if (typeof addObj[index] == 'string') {
           ps.input(index, mssql.NVarChar);
         }
-        sql += index + ",";
+        sql += index + ',';
       }
-      sql = sql.substring(0, sql.length - 1) + ") values(";
+      sql = sql.substring(0, sql.length - 1) + ') values(';
       for (var index in addObj) {
-        if (typeof addObj[index] == "number") {
-          sql += addObj[index] + ",";
-        } else if (typeof addObj[index] == "string") {
-          sql += "'" + addObj[index] + "'" + ",";
+        if (typeof addObj[index] == 'number') {
+          sql += addObj[index] + ',';
+        } else if (typeof addObj[index] == 'string') {
+          sql += "'" + addObj[index] + "'" + ',';
         }
       }
     }
-    sql = sql.substring(0, sql.length - 1) + ")";
+    sql = sql.substring(0, sql.length - 1) + ')';
+
+    connection.query(sql, function(err, rows) {
+      callback(err, rows);
+      connection.release();
+    });
   });
 };
 
@@ -244,12 +256,12 @@ export const add = (addObj, tableName, callBack) => {
 //   });
 // };
 
-exports.config = conf;
-exports.del = del;
-exports.select = select;
-exports.update = update;
-exports.querySql = querySql;
+// exports.config = conf;
+// exports.del = del;
+// exports.select = select;
+// exports.update = update;
+// exports.querySql = querySql;
 exports.selectAll = selectAll;
-exports.selectPage = selectPage;
-exports.restoreDefaults = restoreDefaults;
+// exports.selectPage = selectPage;
+// exports.restoreDefaults = restoreDefaults;
 exports.add = add;
