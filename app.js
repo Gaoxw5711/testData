@@ -31,7 +31,7 @@ app.all('*',function (req, res, next) {
 // process.env.TZ = 'Asia/Shanghai';
 // console.log(process.env.TZ);
 
-app.set('port', process.env.PORT || 3000); // 设定监听端口
+app.set('port', process.env.PORT || 1337); // 设定监听端口
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
